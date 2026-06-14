@@ -1,4 +1,4 @@
-name: Mon Premier Pipeline CI
+name: Mon Premier Pipeline CI/CD
 
 # 1. Quand est-ce que le pipeline se déclenche ?
 on:
@@ -11,6 +11,9 @@ env:
 
 # 2. Que doit faire le pipeline ?
 jobs:
+  # ----------------------------------------
+  # PARTIE 1 : INTEGRATION CONTINUE (CI)
+  # ----------------------------------------
   tester-le-code:
     # On demande à GitHub de nous prêter un petit serveur Ubuntu
     runs-on: ubuntu-latest
@@ -30,3 +33,19 @@ jobs:
       # Étape C : Lancer notre fameux test !
       - name: Lancer le test
         run: npm test
+
+  # ----------------------------------------
+  # PARTIE 2 : DÉPLOIEMENT CONTINU (CD)
+  # ----------------------------------------
+  deployer-en-production:
+    needs: tester-le-code # 🚨 C'est ici que la magie opère : ce job attend que le test réussisse !
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Simulation du déploiement
+        # Le symbole | permet d'écrire plusieurs lignes de commandes d'un coup
+        run: | 
+          echo "✅ Tests validés par le job précédent !"
+          echo "🚀 Connexion au serveur de production..."
+          echo "📦 Envoi du code en cours..."
+          echo "🌐 Succès : L'application est en ligne !"
