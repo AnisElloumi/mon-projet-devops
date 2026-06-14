@@ -5,6 +5,10 @@ on:
   push:
     branches: [ "main" ] # À chaque fois qu'on envoie du code sur 'main'
 
+# On force les plugins de GitHub à utiliser Node 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 # 2. Que doit faire le pipeline ?
 jobs:
   tester-le-code:
