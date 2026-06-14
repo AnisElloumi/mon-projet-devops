@@ -1,0 +1,28 @@
+name: Mon Premier Pipeline CI
+
+# 1. Quand est-ce que le pipeline se déclenche ?
+on:
+  push:
+    branches: [ "main" ] # À chaque fois qu'on envoie du code sur 'main'
+
+# 2. Que doit faire le pipeline ?
+jobs:
+  tester-le-code:
+    # On demande à GitHub de nous prêter un petit serveur Ubuntu
+    runs-on: ubuntu-latest
+
+    # 3. Les étapes à suivre sur ce serveur
+    steps:
+      # Étape A : Télécharger notre code depuis GitHub vers le serveur Ubuntu
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      # Étape B : Installer Node.js sur le serveur
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Étape C : Lancer notre fameux test !
+      - name: Lancer le test
+        run: npm test
