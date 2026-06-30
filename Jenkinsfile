@@ -9,12 +9,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                echo 'Étape de build'
+                sh 'npm install'
             }
         }
         stage('Test') {
             steps {
-                echo 'Étape de test'
+                sh 'npm test'
             }
         }
     }
@@ -24,7 +24,7 @@ pipeline {
             echo "Pipeline réussi — build #${env.BUILD_NUMBER}"
         }
         failure {
-            echo 'Le pipeline a échoué'
+            echo 'Le pipeline a échoué — voir la console pour le détail'
         }
     }
 }
