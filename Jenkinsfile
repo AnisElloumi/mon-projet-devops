@@ -1,8 +1,8 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:20'
-        }
+    agent any
+
+    environment {
+        IMAGE_NAME = 'aniselloumi/mon-projet-devops'
     }
 
     stages {
@@ -11,23 +11,31 @@ pipeline {
                 echo 'Code récupéré avec succès'
             }
         }
-        stage('Build') {
+        stage('Test') {
+            agent {
+                docker { image 'node:20' }
+            }
             steps {
                 sh 'npm install'
-            }
-        }
-        stage('Test') {
-            steps {
                 sh 'npm test'
             }
         }
-        stage('Utilisation du secret') {
+        stage('Build image Docker') {
             steps {
-                withCredentials([string(credentialsId: 'api-token-demo', variable: 'MON_TOKEN')]) {
+                sh 'docker build -t $IMAGE_NAME:${BUILD_NUMBER} .'
+            }
+        }
+        stage('Push image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS')]) {
                     sh '''
-                        echo "Longueur du token : ${#MON_TOKEN}"
-                        echo "Token masqué dans les logs : ****"
-                        echo "Simulation d'appel API sécurisé..."
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $IMAGE_NAME:${BUILD_NUMBER}
+                        docker tag $IMAGE_NAME:${BUILD_NUMBER} $IMAGE_NAME:latest
+                        docker push $IMAGE_NAME:latest
                     '''
                 }
             }
@@ -36,10 +44,13 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline réussi — build #${env.BUILD_NUMBER}"
+            echo "Image aniselloumi/mon-projet-devops:${BUILD_NUMBER} publiée sur Docker Hub"
         }
         failure {
             echo 'Le pipeline a échoué — voir la console'
+        }
+        always {
+            sh 'docker logout'
         }
     }
 }
